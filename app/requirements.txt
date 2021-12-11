@@ -1,0 +1,11 @@
+Adafruit-Blinka
+adafruit-circuitpython-bme680
+adafruit-circuitpython-busdevice
+firebase-admin
+geocoder
+google-api-core
+google-api-python-client
+google-auth
+grpcio
+RPi.GPIO
+urllib3
