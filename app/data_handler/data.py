@@ -2,98 +2,73 @@ from dataclasses import dataclass
 import firebase_admin
 from firebase_admin import credentials, db, App, initialize_app
 
-from .utils import CRED_LOCATION, DATABASE_URL, DATABASE_URL_TEST
+from .utils import CRED_LOCATION, DATABASE_URL, DATABASE_URL_TEST, CRED_LOCATION_TEST
 
 
 @dataclass(init=True, repr=True)
 class fireData:
     """Class to save all data from different sensors."""
     name: str
-    sens_data: dict = None
-    # credentials: str = CRED_LOCATION
-    dbURL: str = DATABASE_URL
-    db_app: App = initialize_app(
-        credential=credentials.Certificate(CRED_LOCATION), name="EnviroMax", options={'databaseURL': dbURL})
-    db_instance: db.Reference = db.reference(app=db_app)
-    db_instance.update({
-        "Devices": "",
-    })
+    # sens_data: dict = None
+    dbURL: str = DATABASE_URL_TEST
+    db_app: App = None
+    db_instance: db.Reference = None
 
-    def print_all(self):
-        print(self.__repr__)
+    def init_db(self):
+        self.db_app: App = initialize_app(
+            credential=credentials.Certificate(CRED_LOCATION_TEST),
+            name=self.name,
+            options={'databaseURL': self.dbURL})
+        self.db_instance: db.Reference = db.reference(app=self.db_app)
 
-    def get_app(self, name='[DEFAULT]'):
+    def get_app(self, name='EnviroMax'):
         return firebase_admin.get_app(name=name)
 
-    def get_database(self, path='/', url=None):
+    def get_ref(self, path='/', url=None):
         return db.reference(path=path, app=self.db_app, url=url)
 
     def init_field(self, field: str):
         self.db_instance.push(field)
 
-    # def init_db(self):
-    #     self.db_ref = firebase_admin.initialize_app(
-    #         credentials.Certificate(self.credentials), {'databaseURL': self.dbURL})
-    #     print(f"{self.db_ref.name} was initialized")
+    def send_data(self, name: str, record: str, path: str, data: dict):
+        ref = self.get_ref(path)
+        ref.child(f'{name}').child('data').child(record).update(data)
+        ref.child(f'{name}').child('data').child('lastData').update(data)
 
-    def send_data(self, data: dict):
-        pass
-        # self.db_ref.child(self.id).push(dict)
-        # ref = db.reference()
-        # user = ref.child('Devices')
-        # user = user.child(uid)  # Should be dynamic
-        # user = user.child('Details')
+    def get_latest_device(self):
+        db = self.get_ref('Devices')
+        device_count = db.get()
+        if device_count:
+            biggest_number = [
+                int(k.removeprefix('RPi-')) for k in list(device_count.keys())
+            ]
+            biggest_number.sort()
+            return biggest_number[-1]
+        else:
+            return 0
 
-        # data = {
-        #     "ID": uid,
-        #     "Name": "Netanya_Device",
-        #     "Location": {
-        #         "lat": 32.3081425,
-        #         "lng": 34.8792939,
-        #     },
-        # }
-        # user.push(data)
+    def device_exist(self, device_ref):
+        db = self.get_ref('Devices')
+        device_count = db.get()
+        return device_ref in device_count.keys()
 
-        # def main():
-        #     data = {
-        #         "ID": 'RPi-1',
-        #         "Name": "Netanya_Device",
-        #         "Location": {
-        #             "lat": 32.3081425,
-        #             "lng": 34.8792939,
-        #         },
-        #     }
-        #     fd = fireData(1, 'RPi-1', 32.3081425, 34.8792939, data)
-        #     fd.init_db()
+    def get_next_count(self, device_ref):
+        db = self.get_ref('Devices')
+        device = db.child(device_ref).child('data').get()
+        if device:
+            return int(list(device.keys())[-2]) + 1
+        else:
+            return 1
 
-        # if __name__ == "__main__":
-        #     sys.exit(main())
-
-        # uid = 'RPi-2'
-        # ref = db.reference()
-        # user = ref.child('Devices')
-        # user = user.child(uid) # Should be dynamic
-        # user = user.child('Details')
-
-        # data = {
-        #     "ID": uid,
-        #     "Name": "Netanya_Device",
-        #     "Location": {
-        #         "lat": 32.3081425,
-        #         "lng": 34.8792939,
-        #     },
-        # }
-        # user.push(data)
-        # user = ref.child('Devices')
-        # user = user.child(uid)
-        # user = user.child('Data')
-        # data = {
-        #     "Temperaute": 29.3,
-        #     "humidity": 42,
-        #     "Date": time.asctime(),
-        #     "Location": {
-        #         "lat": 32.3081425,
-        #         "lng": 34.8792939,
-        #     },
-        # }
-        # user.push(data)
+    def register_new_device(self, device_details):
+        db = self.get_ref('Devices')
+        db.update({
+            device_details["name"]: {
+                'id': device_details["id"],
+                'location': {
+                    "lat": device_details["lat"],
+                    "lng": device_details["lng"]
+                },
+                'data': ''
+            }
+        })

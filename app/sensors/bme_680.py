@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-import time
-import geocoder
-from pprint import pprint
+import random
 
 import board
 import adafruit_bme680
@@ -15,39 +13,41 @@ class Bme680(Sensor):
         super().__init__()
         self.name = name
         # Create sensor object, communicating over the board's default I2C bus
-        # i2c = board.I2C()  # uses board.SCL and board.SDA
-        self.bme680 = adafruit_bme680.Adafruit_BME680_I2C(
-            self.i2c, address=0x76, debug=False)
-        self.bme680.sea_level_pressure = 1013
+        i2c = board.I2C()  # uses board.SCL and board.SDA
+        # FIX IT !!!
+        # self.bme680 = adafruit_bme680.Adafruit_BME680_I2C(i2c,
+        #                                                   address=0x77,
+        #                                                   debug=True)
+        # self.bme680.sea_level_pressure = 1013
         self.temperature_offset = 0
-        self.result = {"Temperature": int, "Air_Pollution": int,
-                       "Humidity": int, "Pressure": int}
+        self.result = {
+            "Temperature": int,
+            "Air_Pollution": int,
+            "Humidity": int,
+            "Pressure": int
+        }
 
-    def get_data(self, duration: int = 5) -> dict:
+    def get_data(self) -> dict:
         """
         duration = for how long to read data
         return = dict with duration data
         """
-        timeout = time.time() + duration
-        while True:
-            self.result["Temperature"] = self.bme680.temperature + \
+        self.result["Temperature"] = self.bme680.temperature + \
                 self.temperature_offset
-            self.result["Air_Pollution"] = self.bme680.gas
-            self.result["Humidity"] = self.bme680.relative_humidity
-            self.result["Pressure"] = self.bme680.pressure
-            # self.result["Altitude"].append(self.bme680.altitude)
-            if time.time() > timeout:
-                return self.result
-            time.sleep(1)
+        self.result["Air_Pollution"] = self.bme680.gas
+        self.result["Humidity"] = self.bme680.relative_humidity
+        self.result["Pressure"] = self.bme680.pressure
+        return self.result
 
-
-# def main():
-#     sens = Bme680("test")
-#     res = sens.get_data()
-#     # print(f'from {sens.name} results for default duration:\n{res}')
-#     # pprint(f'from {sens.name} results for default duration:\n{res}', compact=True)
-#     pprint(res, compact=True)
-
-
-# if __name__ == "__main__":
-#     sys.exit(main())
+    def get_mock_data(self) -> dict:
+        min_value = -0.1
+        max_value = 0.2
+        self.result["Temperature"] = 24 + \
+                (24 * random.uniform(min_value, max_value))
+        self.result["Air_Pollution"] = 40000 + \
+            (40000 * random.uniform(min_value, max_value))
+        self.result["Humidity"] = 38 + \
+            (38 * random.uniform(min_value, max_value))
+        self.result["Pressure"] = 1000 + \
+            (1000 * random.uniform(min_value, max_value))
+        return self.result

@@ -8,15 +8,17 @@ from sensors.bme_680 import Bme680
 class Device:
     newid = itertools.count(1)
 
-    def __init__(self) -> None:
+    def __init__(self, lat, lng) -> None:
         self.id = Device.newid.__next__()
         self.name = f'RPi-{self.id}'
-        self.lat = geocoder.ip('me').lat
-        self.lng = geocoder.ip('me').lng
+        self.lat = lat  # geocoder.ip('me').lat
+        self.lng = lng  # geocoder.ip('me').lng
         self.location = {"lat": self.lat, "lng": self.lng}
         self.sensors = {}
+        self.metadata = {'count': 0, 'highest': 0, 'average': 0}
 
     def add_sensor(self, sensor):
+        print(f'Adding {sensor.name} to {self.name} device !')
         self.sensors[sensor.name] = sensor
 
     def get_sensor(self, sensor_name):
@@ -30,7 +32,7 @@ class Device:
 
     def reg_new_device_db(self, db):
         db.update(
-            {self.name: {'id': self.id, 'location': self.location, 'data': ''}})
+            {self.name: {'id': self.id, 'location': self.location, 'data': '', 'metadata': self.metadata}})
 
     def send_data(self, db):
         lastData = self.sensors["bme_sens"].get_data(1)

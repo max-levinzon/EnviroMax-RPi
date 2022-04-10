@@ -11,4 +11,8 @@ Usage:
 
     1. source enviro/bin/active
     2. pip install -r requirements.txt
-    2. python script.py
+    3. python setup.py
+
+Crontab:
+        Should run every 15 minuts
+        Log from crontab can be found at /etc/var/syslog OR /var/mail/pi

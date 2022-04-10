@@ -1,0 +1,10 @@
+Steps to create a new device:
+
+clone the repo
+create virtual env
+pip install requirements
+run setup script which will include:
+    Check what's the last created device
+    create .config file which will hold the name and location
+    start a function to run and send data every 15 min
+

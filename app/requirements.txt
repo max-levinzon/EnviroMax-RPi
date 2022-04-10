@@ -1,3 +1,4 @@
+wheel
 Adafruit-Blinka
 adafruit-circuitpython-bme680
 adafruit-circuitpython-busdevice
@@ -7,5 +8,8 @@ google-api-core
 google-api-python-client
 google-auth
 grpcio
-RPi.GPIO
+RPi.GPIO==0.7.1a4
 urllib3
+typer
+ipython
+python-crontab
