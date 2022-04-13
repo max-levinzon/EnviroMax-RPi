@@ -3,6 +3,7 @@
 import sys
 import json
 
+from datetime import datetime
 from data_handler.data import fireData
 from sensors.bme_680 import Bme680
 
@@ -16,12 +17,11 @@ def main():
     print(device_data)
     if not db.device_exist(device_data['name']):
         print(f"ERROR !\nDevice not found {device_data['name']}")
-    record = str(db.get_next_count(device_data['name']))
-    print(record)
     sensor = Bme680('bme-sens')
     data = sensor.get_mock_data()
     print(data)
-    db.send_data(device_data["name"], record, 'Devices', data)
+    now = datetime.now()
+    db.send_data(device_data["name"], now.strftime("%d%m%Y%H"), data)
     return 0
 
 

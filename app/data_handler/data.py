@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from dataclasses import dataclass
 import firebase_admin
 from firebase_admin import credentials, db, App, initialize_app
@@ -30,10 +32,11 @@ class fireData:
     def init_field(self, field: str):
         self.db_instance.push(field)
 
-    def send_data(self, name: str, record: str, path: str, data: dict):
+    def send_data(self, name: str, path: str, data: dict):
         ref = self.get_ref(path)
-        ref.child(f'{name}').child('data').child(record).update(data)
-        ref.child(f'{name}').child('data').child('lastData').update(data)
+        # ref.child(f'{name}').child('data').child(record).update(data)
+        # ref.child(f'{name}').child('data').child('lastData').update(data)
+        ref.child(f'{name}').update(data)
 
     def get_latest_device(self):
         db = self.get_ref('Devices')
@@ -69,6 +72,6 @@ class fireData:
                     "lat": device_details["lat"],
                     "lng": device_details["lng"]
                 },
-                'data': ''
+                # 'data': ''
             }
         })

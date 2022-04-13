@@ -4,6 +4,7 @@ import sys
 import json
 import time
 
+from datetime import datetime
 from argparse import ArgumentParser
 
 from data_handler.data import fireData
@@ -17,8 +18,7 @@ def main():
     args = parser.parse_args()
     db = fireData('EnviroMax')
     db.init_db()
-    with open('/home/pi/EnviroMax-RPi/app/mock/device_locations.json',
-              'r') as f:
+    with open('/home/pi/EnviroMax-RPi/app/mock_devices.json', 'r') as f:
         devices_data = json.load(f)
     print(devices_data)
     for device in devices_data.values():
@@ -26,12 +26,12 @@ def main():
     iterations = args.iters if args.iters else 1
     for _ in range(0, iterations):
         for device in devices_data.values():
-            print(device)
-            record = str(db.get_next_count(device['name']))
             sensor = Bme680('bme-sens')
             data = sensor.get_mock_data()
-            db.send_data(device["name"], record, 'Devices', data)
+            now = datetime.now()
+            db.send_data(device["name"], now.strftime("%d%m%Y%H%M"), data)
         if args.time:
+            print(f'Sleeping for {args.time}')
             time.sleep(args.time)
     return 0
 
