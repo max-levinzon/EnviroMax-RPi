@@ -1,0 +1,12 @@
+[Unit]
+ConditionPathExists=/dev/ttyS0
+After=dev-ttyS0.device
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/pppd call gprs
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.targer

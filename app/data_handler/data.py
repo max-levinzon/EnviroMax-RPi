@@ -12,15 +12,15 @@ class fireData:
     """Class to save all data from different sensors."""
     name: str
     # sens_data: dict = None
-    dbURL: str = DATABASE_URL_TEST
+    dbURL: str = DATABASE_URL
     db_app: App = None
     db_instance: db.Reference = None
 
-    def init_db(self):
-        self.db_app: App = initialize_app(
-            credential=credentials.Certificate(CRED_LOCATION_TEST),
-            name=self.name,
-            options={'databaseURL': self.dbURL})
+    def init_db(self, test=False):
+        self.db_app: App = initialize_app(credential=credentials.Certificate(
+            CRED_LOCATION_TEST if test else CRED_LOCATION),
+                                          name=self.name,
+                                          options={'databaseURL': self.dbURL})
         self.db_instance: db.Reference = db.reference(app=self.db_app)
 
     def get_app(self, name='EnviroMax'):
@@ -34,9 +34,8 @@ class fireData:
 
     def send_data(self, name: str, path: str, data: dict):
         ref = self.get_ref(path)
-        # ref.child(f'{name}').child('data').child(record).update(data)
-        # ref.child(f'{name}').child('data').child('lastData').update(data)
         ref.child(f'{name}').update(data)
+        return 1
 
     def get_latest_device(self):
         db = self.get_ref('Devices')
@@ -72,6 +71,5 @@ class fireData:
                     "lat": device_details["lat"],
                     "lng": device_details["lng"]
                 },
-                # 'data': ''
             }
         })
