@@ -9,15 +9,16 @@ from sensors.sensor import Sensor
 
 
 class Bme680(Sensor):
-    def __init__(self, name) -> None:
+    def __init__(self, name, test=False) -> None:
         super().__init__()
         self.name = name
         # Create sensor object, communicating over the board's default I2C bus
         i2c = board.I2C()  # uses board.SCL and board.SDA
-        # self.bme680 = adafruit_bme680.Adafruit_BME680_I2C(i2c,
-        #                                                   address=0x76,
-        #                                                   debug=True)
-        # self.bme680.sea_level_pressure = 1013
+        if not test:
+            self.bme680 = adafruit_bme680.Adafruit_BME680_I2C(i2c,
+                                                            address=0x76,
+                                                            debug=True)
+            self.bme680.sea_level_pressure = 1013
         self.temperature_offset = 0
         self.result = {
             "Temperature": float,

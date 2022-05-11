@@ -31,7 +31,7 @@ def main():
     for i in range(1, 26):
         delta = 26 - i
         for device in devices_data.values():
-            sensor = Bme680('bme-sens')
+            sensor = Bme680('bme-sens', test=True)
             delta_time = datetime.now() - timedelta(hours=delta)
             time_to_send = delta_time.strftime("%d%m%Y%H")
             data = sensor.get_custom_data(delta_time.strftime("%H"),

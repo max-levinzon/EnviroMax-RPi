@@ -12,7 +12,7 @@ from data_handler.data import fireData
 
 def main():
     db = fireData('EnviroMax')
-    db.init_db(test=True)
+    db.init_db()
     latest_device = db.get_latest_device() + 1
     device_details = {
         'id': latest_device,
@@ -24,8 +24,6 @@ def main():
         json.dump(device_details, f)
     # Register the new device in the database
     db.register_new_device(device_details)
-    # Add node_exporter monitoring
-    os.system('sudo ./apts/node_exporter_installer.sh')
     # Trigger another script to run and send data each hour
     crontab = CronTab(user='pi')
     job = crontab.new(

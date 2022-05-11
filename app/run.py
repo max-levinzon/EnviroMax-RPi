@@ -10,7 +10,7 @@ from sensors.bme_680 import Bme680
 
 def main():
     db = fireData('EnviroMax')
-    db.init_db(test=True)
+    db.init_db()
     with open('/home/pi/EnviroMax-RPi/app/.config', 'r') as f:
         device_data = json.load(f)
     if not db.device_exist(device_data['name']):
